@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Windows Python 개발 환경 가이드</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      color: #1a202c;
+      line-height: 1.65;
+      font-size: 10.5pt;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 24px;
+      background: #fff;
+    }
+    .cover {
+      text-align: center;
+      padding: 48px 0 32px;
+      border-bottom: 3px solid #3182ce;
+      margin-bottom: 32px;
+    }
+    .cover h1 {
+      font-size: 26pt;
+      color: #1a365d;
+      margin: 0 0 12px;
+      letter-spacing: -0.5px;
+    }
+    .cover .meta {
+      color: #718096;
+      font-size: 10pt;
+    }
+    h2 {
+      color: #2b6cb0;
+      font-size: 15pt;
+      margin: 28px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #bee3f8;
+      page-break-after: avoid;
+    }
+    h3 {
+      color: #2c5282;
+      font-size: 12pt;
+      margin: 18px 0 8px;
+      page-break-after: avoid;
+    }
+    h4 {
+      color: #2d3748;
+      font-size: 10.5pt;
+      margin: 14px 0 6px;
+    }
+    p { margin: 0 0 8px; }
+    ul { margin: 6px 0 12px; padding-left: 22px; }
+    li { margin-bottom: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #cbd5e0;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #ebf8ff;
+      color: #2b6cb0;
+      font-weight: 700;
+    }
+    pre, code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 8.5pt;
+    }
+    pre {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #4299e1;
+      padding: 12px 14px;
+      overflow-x: auto;
+      margin: 10px 0 16px;
+      page-break-inside: avoid;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .summary-box {
+      background: #ebf8ff;
+      border: 1px solid #90cdf4;
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 16px 0 24px;
+    }
+    .summary-box strong { color: #2b6cb0; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 9pt;
+      font-weight: 700;
+      margin-right: 4px;
+    }
+    .badge-green { background: #c6f6d5; color: #22543d; }
+    .badge-yellow { background: #fefcbf; color: #744210; }
+    .badge-red { background: #fed7d7; color: #742a2a; }
+    .page-break { page-break-before: always; }
+    .footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 8.5pt;
+      color: #a0aec0;
+      text-align: center;
+    }
+    @media print {
+      body { padding: 0; }
+      .no-print { display: none; }
+    }
+    .print-hint {
+      background: #fffaf0;
+      border: 1px solid #fbd38d;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 24px;
+      font-size: 9.5pt;
+    }
+  </style>
+</head>
+<body>
+
+<div class="no-print print-hint">
+  💡 PDF 저장 방법: <kbd>Ctrl</kbd>+<kbd>P</kbd> → 대상 <strong>「PDF로 저장」</strong> 선택 → 저장
+</div>
+
+<div class="cover">
+  <h1>Windows Python 개발 환경 가이드</h1>
+  <div class="meta">
+    ChatGPT 대화 정리 · 2026년 8월 기준<br/>
+    Anaconda vs Python · MLOps/ML Engineer 환경 구성
+  </div>
+</div>
+
+<div class="summary-box">
+  <strong>요약</strong><br/>
+  2026년 기준 Windows에서 Python을 시작할 때 가장 권장되는 구성은
+  <strong>Python 공식 설치 + uv/venv + VS Code + Git + Docker</strong> 입니다.
+  Anaconda Full은 입문용으로 편리하지만 현업 MLOps 흐름과는 다소 거리가 있습니다.
+  CUDA GPU 딥러닝을 본격적으로 할 계획이면 Miniconda를 추가하는 방식이 현실적입니다.
+</div>
+
+<h2>최종 추천 순위</h2>
+<table>
+  <tr><th>순위</th><th>선택</th><th>적합한 경우</th></tr>
+  <tr><td>🥇 1순위</td><td>Python 공식 설치 + uv + venv</td><td>MLOps/개발 중심, 실무와 동일한 구조 학습</td></tr>
+  <tr><td>🥈 2순위</td><td>Miniconda</td><td>GPU/CUDA, 데이터 사이언스, ML 실험</td></tr>
+  <tr><td>🥉 3순위</td><td>Anaconda Full</td><td>입문·Jupyter 중심 빠른 시작 (현업 흐름과 조금 다름)</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2>Part 1. Windows Python 세팅 (단계별)</h2>
+<p>2026년 기준 권장 구성: Python 공식 설치 · VS Code · venv · pip 또는 uv</p>
+
+<h3>1. Python 설치</h3>
+<ul>
+  <li>공식 홈페이지(python.org) → Windows Installer (64-bit) 다운로드</li>
+  <li>설치 시 반드시 체크: <strong>Add python.exe to PATH</strong></li>
+  <li>설치 확인: <code>python --version</code> 또는 <code>py --version</code></li>
+</ul>
+
+<h3>2. VS Code 설치</h3>
+<ul>
+  <li>Extension: Python (Microsoft), Pylance, Black Formatter, Jupyter</li>
+</ul>
+
+<h3>3~6. 프로젝트 &amp; 가상환경</h3>
+<pre>mkdir D:\Project\Python
+cd D:\Project\Python
+python -m venv .venv
+
+# PowerShell 활성화
+.venv\Scripts\Activate.ps1
+
+# CMD 활성화
+.venv\Scripts\activate.bat</pre>
+
+<h3>7~9. 패키지 관리</h3>
+<pre>python -m pip install --upgrade pip
+pip install pandas numpy
+pip freeze > requirements.txt
+pip install -r requirements.txt</pre>
+
+<h3>10. VS Code 인터프리터</h3>
+<p>Ctrl+Shift+P → <strong>Python: Select Interpreter</strong> → .venv 선택</p>
+
+<h3>11~12. 실행 &amp; Git</h3>
+<pre>python main.py
+
+# .gitignore
+.venv/
+__pycache__/
+.vscode/
+*.pyc</pre>
+
+<h3>13. 추천 개발 패키지</h3>
+<p>black (포맷), ruff (린터), pytest (테스트), requests, pandas, numpy, matplotlib, jupyter</p>
+
+<h3>14. uv 사용 (최신 권장)</h3>
+<pre>uv venv
+uv pip install pandas</pre>
+<p>가상환경 생성·패키지 설치가 pip보다 빠르고 재현성이 좋습니다.</p>
+
+<h3>추천 구성 (Windows + VS Code)</h3>
+<table>
+  <tr><th>항목</th><th>추천</th></tr>
+  <tr><td>Python</td><td>공식 Python 최신 안정 버전</td></tr>
+  <tr><td>IDE</td><td>VS Code</td></tr>
+  <tr><td>가상환경</td><td>venv</td></tr>
+  <tr><td>패키지 관리</td><td>uv (권장) 또는 pip</td></tr>
+  <tr><td>포매터 / 린터 / 테스트</td><td>Black / Ruff / Pytest</td></tr>
+  <tr><td>버전 관리</td><td>Git + GitHub</td></tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2>Part 2. Python 버전 &amp; Anaconda 안정성</h2>
+
+<h3>Anaconda Python 3.13.9는 Stable한가?</h3>
+<p>
+  <strong>네.</strong> Anaconda에 포함된 Python 3.13.9는 충분히 안정적인(Stable) 버전입니다.
+  3.13.9는 3.13 계열의 9번째 패치(Maintenance) 릴리스로, 새 기능 추가보다 버그 수정·보안 패치 중심입니다.
+</p>
+
+<h3>Stable 최신 버전 비교 (2026년 8월 기준)</h3>
+<p>Python 3.14.x가 최신 안정 메이저 버전이지만, '최신'과 '가장 추천'은 항상 같지 않습니다.</p>
+<table>
+  <tr><th>항목</th><th>Python 3.13.9</th><th>Python 3.14.x</th></tr>
+  <tr><td>안정성</td><td>⭐⭐⭐⭐⭐ (매우 검증됨)</td><td>⭐⭐⭐⭐☆ (상대적으로 새로움)</td></tr>
+  <tr><td>라이브러리 호환성</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐☆☆ (일부 미지원 가능)</td></tr>
+  <tr><td>ML/Data Science</td><td>⭐⭐⭐⭐⭐ (권장)</td><td>⭐⭐⭐☆☆ (주의 필요)</td></tr>
+  <tr><td>신규 프로젝트</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐☆</td></tr>
+</table>
+
+<h3>Anaconda 내 Stable Python 버전</h3>
+<p>
+  Anaconda에서 가장 안정적으로 많이 쓰이는 버전: <strong>Python 3.12.x</strong>, <strong>Python 3.11.x</strong>.
+  3.13.9도 stable하지만 ML/GPU 라이브러리 호환성을 고려하면 3.12.x가 더 무난한 경우가 많습니다.
+</p>
+
+<h3>현업 Python 버전 사용 현황</h3>
+<table>
+  <tr><th>Python</th><th>사용 현황</th></tr>
+  <tr><td>3.11</td><td>⭐⭐⭐⭐⭐ 매우 많음</td></tr>
+  <tr><td>3.12</td><td>⭐⭐⭐⭐⭐ 증가 중</td></tr>
+  <tr><td>3.13</td><td>⭐⭐⭐⭐☆ 신규 프로젝트</td></tr>
+  <tr><td>3.10 이하</td><td>기존 프로젝트 유지</td></tr>
+</table>
+<p>최신보다 한두 단계 이전 버전 선호 — PyTorch, TensorFlow, CUDA, GPU Driver, ML 라이브러리 호환성 때문.</p>
+
+<div class="page-break"></div>
+
+<h2>Part 3. Anaconda vs Python 공식 설치</h2>
+
+<table>
+  <tr><th>항목</th><th>Anaconda Full</th><th>Miniconda</th><th>Python + venv/uv</th></tr>
+  <tr><td>설치 크기</td><td>대 (~3GB+)</td><td>소</td><td>최소</td></tr>
+  <tr><td>시작 속도</td><td>빠름 (올인원)</td><td>보통</td><td>보통</td></tr>
+  <tr><td>패키지 관리</td><td>conda</td><td>conda</td><td>pip / uv</td></tr>
+  <tr><td>실무 유사도</td><td>낮음~보통</td><td>보통~높음</td><td>높음</td></tr>
+  <tr><td>GPU/CUDA</td><td>강함</td><td>강함</td><td>별도 설정</td></tr>
+  <tr><td>MLOps/배포</td><td>조금 다름</td><td>가능</td><td>가장 가까움</td></tr>
+</table>
+
+<h3>개인 학습용으로 Anaconda?</h3>
+<p>
+  운영 반영이 아닌 <strong>개인 학습·분석</strong> 목적이라면 Anaconda는 편리합니다 (Jupyter, pandas 등 즉시 사용).
+  Python 생태계(venv, pip, requirements.txt)를 깊이 이해하려면 Python 공식 설치가 더 유리합니다.
+</p>
+
+<h3>셋 중 하나만 설치한다면</h3>
+<p><span class="badge badge-green">1순위</span> Python 공식 설치 + venv — ★★★★★</p>
+<p><span class="badge badge-yellow">2순위</span> Miniconda — ★★★★☆ (GPU/ML 실험 시)</p>
+<p><span class="badge badge-red">3순위</span> Anaconda Full — ★★★☆☆ (빠른 입문용)</p>
+
+<h3>여러 OS(Windows/Mac) 경험 관점</h3>
+<pre># Windows
+python -m venv .venv
+.venv\Scripts\activate
+pip install pandas sqlalchemy
+
+# Mac (거의 동일)
+python3 -m venv .venv
+source .venv/bin/activate
+pip install pandas sqlalchemy</pre>
+<p>
+  실무 서버(Linux, Airflow, ETL)에서는 <code>python3 + venv + pip + requirements.txt</code> 구조가 일반적입니다.
+  Anaconda(conda)는 별도 생태계이며, 플랫폼 이동성은 좋지만 실무와는 거리가 있습니다.
+</p>
+
+<h3>추천 학습 순서</h3>
+<ol>
+  <li><strong>1단계 (Windows):</strong> Python 3.13.9 + VS Code + venv + pip</li>
+  <li><strong>2단계:</strong> 같은 프로젝트를 Mac에서 Git clone 후 재구축</li>
+  <li><strong>3단계:</strong> Miniconda, Docker, Poetry, uv 등으로 확장</li>
+</ol>
+
+<div class="page-break"></div>
+
+<h2>Part 4. MLOps / ML Engineer 환경 (2026년 기준)</h2>
+<p>현업 표준: <strong>Python + 가상환경(uv/venv/conda) + Docker + Git + VS Code</strong></p>
+
+<h3>1. ML Engineer 환경 구조</h3>
+<pre>개발 PC (Windows/Mac/Linux)
+├── Python 3.11 ~ 3.13
+├── Virtual Environment (uv / venv / conda)
+├── VS Code / PyCharm
+├── Git
+└── Docker → Training / Serving Environment
+
+→ 로컬에서 실험하고 Docker로 재현</pre>
+
+<h3>2. 가상환경 사용 현황</h3>
+<h4>1순위: uv</h4>
+<pre>uv init ml-project
+cd ml-project
+uv add torch pandas scikit-learn</pre>
+<p>pip보다 빠름 · 재현성 좋음 · Python 버전 관리 가능</p>
+
+<h4>2순위: conda / mamba (GPU, CUDA, 데이터 사이언스)</h4>
+<pre>conda create -n ml python=3.12
+conda activate ml</pre>
+
+<h4>3순위: venv + pip (Backend ML API, FastAPI, MLOps 서비스)</h4>
+
+<h3>3. Anaconda 현업 사용 형태</h3>
+<p>
+  <span class="badge badge-red">❌</span> Anaconda Full Distribution 보다
+  <span class="badge badge-green">✅</span> Miniconda / Micromamba 선호
+</p>
+
+<h3>4. ML 프로젝트 구조 예시</h3>
+<pre>customer-ai-model/
+├── data/
+├── notebooks/experiment.ipynb
+├── src/train.py, predict.py
+├── models/
+├── Dockerfile
+├── pyproject.toml
+├── uv.lock
+└── README.md
+
+환경: Python 3.12 + uv + PyTorch + MLflow + Docker</pre>
+
+<h3>5. MLOps 배포 구조</h3>
+<pre>Developer PC → GitHub → CI/CD → Docker Image
+→ Kubernetes → Model Serving</pre>
+<table>
+  <tr><th>영역</th><th>기술</th></tr>
+  <tr><td>버전관리</td><td>Git</td></tr>
+  <tr><td>패키지</td><td>uv / poetry</td></tr>
+  <tr><td>컨테이너</td><td>Docker</td></tr>
+  <tr><td>실험관리</td><td>MLflow</td></tr>
+  <tr><td>Pipeline</td><td>Airflow / Kubeflow</td></tr>
+  <tr><td>Serving</td><td>FastAPI / Triton</td></tr>
+  <tr><td>Container 운영</td><td>Kubernetes</td></tr>
+</table>
+
+<h3>6. Data Engineer → MLOps Engineer 경로</h3>
+<p>
+  Hadoop, Airflow, ETL, Linux, DB, Infra 운영 경험이 있다면
+  <strong>Data Engineer → ML Engineer → MLOps Engineer</strong> 방향이 자연스럽습니다.
+</p>
+
+<h3>7. 추천 Windows 개인 PC 구성</h3>
+<pre>Windows 11
+├── Python 3.13.9 (또는 3.12)
+├── uv
+├── VS Code
+├── Docker Desktop
+├── Git
+└── Jupyter Extension
+
+ML 실험: uv venv + PyTorch, Pandas, Scikit-learn, MLflow</pre>
+
+<h2>최종 결론</h2>
+<ul>
+  <li><span class="badge badge-red">❌</span> Anaconda Full — 입문용으로는 좋지만 현업 흐름과 조금 다름</li>
+  <li><span class="badge badge-yellow">△</span> Miniconda — ML/GPU 환경에서는 여전히 좋은 선택</li>
+  <li><span class="badge badge-green">✅</span> Python 공식 설치 + uv + Docker — 현재 MLOps 흐름과 가장 가까움</li>
+</ul>
+<p>
+  <strong>하나만 설치한다면: Python 공식 설치 + uv 환경을 추천.</strong><br/>
+  CUDA 기반 딥러닝(PyTorch GPU)을 본격적으로 할 계획이면 그때 Miniconda를 추가하는 방식이 가장 현실적입니다.
+</p>
+
+<div class="footer">
+  출처: ChatGPT 공유 대화 · https://chatgpt.com/share/6a71349d-dc00-83ee-b7c0-642f7556f8a1<br/>
+  정리일: 2026년 8월 4일
+</div>
+
+</body>
+</html>
